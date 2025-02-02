@@ -2,6 +2,9 @@
 # @Time    : 2025/1/26 9:31
 # @Author  : Gan Liyifan
 # @File    : train.py
+import os
+import re
+
 import torch
 from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader, random_split
@@ -68,17 +71,39 @@ def validation_epoch(model, dataloader, device_):
 
 
 def train(config):
+
+    if config.load_previous_model:
+        folders = [f for f in os.listdir(config.model_save_path) if
+                   os.path.isdir(os.path.join(config.model_save_path, f))]
+
+        epoch_numbers = []
+        for folder in folders:
+            match = re.match(r'epoch_(\d+)', folder)
+            if match:
+                epoch_numbers.append(int(match.group(1)))
+
+        if not epoch_numbers:
+            raise ValueError("No valid checkpoints found in the model_save_path")
+
+        epoch = max(epoch_numbers)
+        model_path = os.path.join(config.model_save_path, "epoch_{}".format(epoch))
+        tokenizer_path = os.path.join(config.tokenizer_save_path, "epoch_{}".format(epoch))
+
+        print("Loading model from epoch {}".format(epoch))
+    else:
+        model_path = config.model_name_or_path
+        tokenizer_path = config.model_name_or_path
+
     print("Loading configuration")
-    print(config)
-    model_config = GPT2Config.from_pretrained(pretrained_model_name_or_path=config.model_name_or_path,
+    model_config = GPT2Config.from_pretrained(pretrained_model_name_or_path=model_path,
                                               num_labels=config.n_labels)
     print('Loading tokenizer...')
-    tokenizer = GPT2Tokenizer.from_pretrained(pretrained_model_name_or_path=config.model_name_or_path)
+    tokenizer = GPT2Tokenizer.from_pretrained(pretrained_model_name_or_path=tokenizer_path)
     tokenizer.padding_side = "left"
     tokenizer.pad_token = tokenizer.eos_token
 
     print('Loading model...')
-    model = GPT2ForSequenceClassification.from_pretrained(pretrained_model_name_or_path=config.model_name_or_path,
+    model = GPT2ForSequenceClassification.from_pretrained(pretrained_model_name_or_path=model_path,
                                                           config=model_config)
 
     model.resize_token_embeddings(len(tokenizer))
@@ -104,7 +129,7 @@ def train(config):
     #                               collate_fn=gpt2_classification_collator)
 
     optimizer = AdamW(model.parameters(),
-                      lr=config.learning_rate,  # default is 5e-5, our notebook had 2e-5
+                      lr=config.learning_rate,  # default is 5e-5,
                       eps=config.eps  # default is 1e-8.
                       )
 
@@ -138,8 +163,10 @@ def train(config):
         all_acc['val_acc'].append(val_acc)
 
         if epoch % config.save_step == 0:
-            model.save_pretrained(config.model_save_path)
-            tokenizer.save_pretrained(config.tokenizer_save_path)
+            model_save_path = os.path.join(config.model_save_path, 'epoch_{}'.format(epoch))
+            tokenizer_save_path = os.path.join(config.tokenizer_save_path, 'epoch_{}'.format(epoch))
+            model.save_pretrained(model_save_path)
+            tokenizer.save_pretrained(tokenizer_save_path)
 
 
 if __name__ == '__main__':

@@ -7,8 +7,8 @@ import torch
 class Config:
     def __init__(self):
         self.seed = 123
-        self.epochs = 1000
-        self.batch_size = 10
+        self.epochs = 100
+        self.batch_size = 15
         self.max_length = 500
         self.learning_rate = 2e-5
         self.eps = 1e-8
@@ -20,9 +20,10 @@ class Config:
         self.train_data_path = 'data/train'
         self.valid_data_path = 'data/test'
 
+        self.load_previous_model = False
         self.model_save_path = 'checkpoints/model'
         self.tokenizer_save_path = 'checkpoints/tokenizer'
-        self.save_step = 100
+        self.save_step = 10
 
     def __str__(self):
         return str(self.__dict__)
