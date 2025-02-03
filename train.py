@@ -85,14 +85,16 @@ def train(config):
         if not epoch_numbers:
             raise ValueError("No valid checkpoints found in the model_save_path")
 
-        epoch = max(epoch_numbers)
-        model_path = os.path.join(config.model_save_path, "epoch_{}".format(epoch))
-        tokenizer_path = os.path.join(config.tokenizer_save_path, "epoch_{}".format(epoch))
+        max_epoch = max(epoch_numbers)
+        model_path = os.path.join(config.model_save_path, "epoch_{}".format(max_epoch))
+        tokenizer_path = os.path.join(config.tokenizer_save_path, "epoch_{}".format(max_epoch))
+        starting_epoch = max_epoch + 1
 
-        print("Loading model from epoch {}".format(epoch))
+        print("Loading model from epoch {}".format(max_epoch))
     else:
         model_path = config.model_name_or_path
         tokenizer_path = config.model_name_or_path
+        starting_epoch = 1
 
     print("Loading configuration")
     model_config = GPT2Config.from_pretrained(pretrained_model_name_or_path=model_path,
@@ -142,7 +144,8 @@ def train(config):
     all_loss = {'train_loss': [], 'val_loss': []}
     all_acc = {'train_acc': [], 'val_acc': []}
 
-    for epoch in range(config.epochs):
+
+    for epoch in range(starting_epoch, config.epochs):
         print('Epoch: {}'.format(epoch))
         print('Training on batches...')
         train_labels, train_predict, train_loss = train_epoch(model, train_dataloader, optimizer, scheduler,
