@@ -43,6 +43,7 @@ class BusinessIntentionDataset(Dataset):
 
     def __getitem__(self, idx):
         return {
+            'id': self.data[idx]['id'],
             'text': self.data[idx]['text'],
             'label': self.data[idx]['label']
         }
