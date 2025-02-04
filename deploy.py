@@ -20,7 +20,6 @@ from transformers import (set_seed,
                           GPT2ForSequenceClassification)
 
 from data.dataloader import BusinessIntention, BusinessIntentionDataset
-from train import validation_epoch
 from utils.utils import Gpt2ClassificationCollator
 
 

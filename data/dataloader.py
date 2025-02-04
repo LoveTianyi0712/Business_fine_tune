@@ -58,7 +58,7 @@ class BusinessIntentionDataset(Dataset):
 
 
 class BusinessIntention:
-    def __init__(self, id, grade, project, description, channel, student_type, intention=None):
+    def __init__(self, id, grade, project, description, channel, student_type, intention='高'):
         self.grade = grade
         self.project = project
         self.description = description
