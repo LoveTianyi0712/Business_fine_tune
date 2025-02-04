@@ -116,8 +116,10 @@ def train(config):
     gpt2_classification_collator = Gpt2ClassificationCollator(use_tokenizer=tokenizer,
                                                               labels_encoder=config.labels_ids,
                                                               max_sequence_len=config.max_length)
+    # load data
+    dataset = BusinessIntentionDataset()
+    dataset.load_data_from_path(config.train_data_path)
 
-    dataset = BusinessIntentionDataset(config.train_data_path)
     train_size = int(0.8 * len(dataset))
     valid_size = len(dataset) - train_size
     train_dataset, valid_dataset = random_split(dataset, [train_size, valid_size])
