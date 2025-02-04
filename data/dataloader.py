@@ -85,7 +85,7 @@ class BusinessIntention:
                                                   key not in ['id', 'intention']])
 
     def data_entry(self):
-        return self.id, self.text, self.label
+        return {'id': self.id, 'text': self.text, 'label': self.label}
 
 
 if __name__ == '__main__':
